@@ -220,7 +220,14 @@ def _process_event(
     logger.info("Processing event: %s (%s)", event_item.event_name, event_item.event_date)
 
     event_detail = fetch_event_detail(client, event_item.url, event_item.source_id)
+    fight_details, fighter_profiles = _fetch_event_data(client, event_detail)
+    _upsert_event_data(session, state, event_detail, fight_details, fighter_profiles)
 
+    state.last_event_date = event_detail.event_date
+    state.last_event_source_id = event_detail.source_id
+
+
+def _fetch_event_data(client, event_detail):
     fight_details = []
     fighter_sids_seen: set[str] = set()
     fighter_profiles = []
@@ -235,6 +242,10 @@ def _process_event(
                 profile = fetch_fighter_profile(client, sid)
                 fighter_profiles.append(profile)
 
+    return fight_details, fighter_profiles
+
+
+def _upsert_event_data(session, state, event_detail, fight_details, fighter_profiles):
     event_result = upsert_events(session, [_build_event_dict(event_detail)])
     state.events_inserted += event_result.inserted
     state.events_updated += event_result.updated
@@ -258,6 +269,3 @@ def _process_event(
     stats_result = upsert_fight_stats(session, stats_dicts)
     state.fight_stats_inserted += stats_result.inserted
     state.fight_stats_updated += stats_result.updated
-
-    state.last_event_date = event_detail.event_date
-    state.last_event_source_id = event_detail.source_id
