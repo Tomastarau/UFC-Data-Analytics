@@ -54,6 +54,7 @@ class FightDetail:
     finish_round: int | None
     finish_time_seconds: int | None
     scheduled_rounds: int | None
+    time_format_raw: str | None
     referee: str | None
     weight_class: str | None
     title_fight: bool

@@ -73,6 +73,7 @@ class Fight(Base):
     gender: Mapped[str | None] = mapped_column(Text)
     fight_order: Mapped[int | None] = mapped_column(Integer)
     scheduled_rounds: Mapped[int | None] = mapped_column(Integer)
+    time_format_raw: Mapped[str | None] = mapped_column(Text)
     finish_round: Mapped[int | None] = mapped_column(Integer)
     finish_time_seconds: Mapped[int | None] = mapped_column(Integer)
     result_method: Mapped[str | None] = mapped_column(Text)
