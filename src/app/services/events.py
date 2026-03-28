@@ -1,48 +1,33 @@
-from sqlalchemy import func, select
+from sqlalchemy import text
 from sqlalchemy.orm import Session
-
-from src.models.raw import Event, Fight
 
 
 def get_all_events(session: Session) -> list[dict]:
-    fight_count = (
-        select(Fight.event_id, func.count().label("fight_count"))
-        .group_by(Fight.event_id)
-        .subquery()
-    )
-    stmt = (
-        select(
-            Event.event_name,
-            Event.event_date,
-            Event.location,
-            fight_count.c.fight_count,
-        )
-        .outerjoin(fight_count, Event.id == fight_count.c.event_id)
-        .order_by(Event.event_date.desc())
-    )
-    rows = session.execute(stmt).all()
-    return [
-        {
-            "Event": r.event_name,
-            "Date": r.event_date,
-            "Location": r.location,
-            "Fights": r.fight_count or 0,
-        }
-        for r in rows
-    ]
+    stmt = text("""
+        SELECT
+            e.event_name  AS "Event",
+            e.event_date  AS "Date",
+            e.location    AS "Location",
+            e.event_year  AS "Year",
+            COUNT(f.fight_id) AS "Fights"
+        FROM staging.stg_events e
+        LEFT JOIN staging.stg_fights f ON e.event_id = f.event_id
+        GROUP BY e.event_id, e.event_name, e.event_date, e.location, e.event_year
+        ORDER BY e.event_date DESC
+    """)
+    return [dict(r._mapping) for r in session.execute(stmt)]
 
 
 def get_event_years(session: Session) -> list[int]:
-    stmt = (
-        select(func.extract("year", Event.event_date).label("year"))
-        .where(Event.event_date.isnot(None))
-        .distinct()
-        .order_by(func.extract("year", Event.event_date).desc())
-    )
-    rows = session.execute(stmt).all()
-    return [int(r.year) for r in rows]
+    stmt = text("""
+        SELECT DISTINCT event_year AS year
+        FROM staging.stg_events
+        WHERE event_year IS NOT NULL
+        ORDER BY event_year DESC
+    """)
+    return [r.year for r in session.execute(stmt)]
 
 
 def count_events(session: Session) -> int:
-    stmt = select(func.count()).select_from(Event)
+    stmt = text("SELECT COUNT(*) AS cnt FROM staging.stg_events")
     return session.execute(stmt).scalar_one()

@@ -69,6 +69,7 @@ def _build_fight_dict(fight_detail, event_source_id: str, fight_order: int) -> d
         "gender": fight_detail.gender,
         "fight_order": fight_order,
         "scheduled_rounds": fight_detail.scheduled_rounds,
+        "time_format_raw": fight_detail.time_format_raw,
         "finish_round": fight_detail.finish_round,
         "finish_time_seconds": fight_detail.finish_time_seconds,
         "result_method": fight_detail.result_method,
@@ -82,6 +83,7 @@ def _build_fight_dict(fight_detail, event_source_id: str, fight_order: int) -> d
             "result_method": fight_detail.result_method,
             "result_details": fight_detail.result_details,
             "referee": fight_detail.referee,
+            "time_format_raw": fight_detail.time_format_raw,
         },
     }
 

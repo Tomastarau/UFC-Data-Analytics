@@ -18,11 +18,7 @@ selected_year = year_filter(years)
 
 data = get_all_events(session)
 df = pd.DataFrame(data)
-
-if selected_year:
-    df["_year"] = pd.to_datetime(df["Date"]).dt.year
-    df = apply_filter(df, "_year", selected_year)
-    df = df.drop(columns=["_year"])
+df = apply_filter(df, "Year", selected_year)
 
 display_table(df.to_dict("records"))
 

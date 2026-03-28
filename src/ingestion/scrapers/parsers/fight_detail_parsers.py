@@ -80,6 +80,7 @@ def parse_result_metadata(soup: BeautifulSoup) -> dict:
     finish_round = None
     finish_time_seconds = None
     scheduled_rounds = None
+    time_format_raw = None
     referee = None
     result_details = None
 
@@ -90,10 +91,11 @@ def parse_result_metadata(soup: BeautifulSoup) -> dict:
         elif text.startswith("Time:"):
             finish_time_seconds = parse_time_to_seconds(text.replace("Time:", "").strip())
         elif text.startswith("Time format:"):
-            parts = text.replace("Time format:", "").strip()
-            rnd_match = re.match(r"(\d+)\s+Rnd", parts)
-            if rnd_match:
-                scheduled_rounds = int(rnd_match.group(1))
+            time_format_raw = text.replace("Time format:", "").strip() or None
+            if time_format_raw:
+                rnd_match = re.match(r"(\d+)\s+Rnd", time_format_raw)
+                if rnd_match:
+                    scheduled_rounds = int(rnd_match.group(1))
         elif text.startswith("Referee:"):
             referee = text.replace("Referee:", "").strip() or None
         elif text.startswith("Details:"):
@@ -104,6 +106,7 @@ def parse_result_metadata(soup: BeautifulSoup) -> dict:
         "finish_round": finish_round,
         "finish_time_seconds": finish_time_seconds,
         "scheduled_rounds": scheduled_rounds,
+        "time_format_raw": time_format_raw,
         "referee": referee,
         "result_details": result_details,
     }

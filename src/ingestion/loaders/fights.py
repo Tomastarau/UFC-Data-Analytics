@@ -76,6 +76,7 @@ def upsert_fights(session: Session, fights: list[dict]) -> UpsertResult:
             "gender": stmt.excluded.gender,
             "fight_order": stmt.excluded.fight_order,
             "scheduled_rounds": stmt.excluded.scheduled_rounds,
+            "time_format_raw": stmt.excluded.time_format_raw,
             "finish_round": stmt.excluded.finish_round,
             "finish_time_seconds": stmt.excluded.finish_time_seconds,
             "result_method": stmt.excluded.result_method,
