@@ -5,7 +5,10 @@ from src.app.db import get_session
 from src.app.services.events import count_events, get_all_events, get_event_years
 from src.app.ui.filters import apply_filter, year_filter
 from src.app.ui.metrics import display_metrics
+from src.app.ui.styles import inject_styles
 from src.app.ui.tables import display_table
+
+inject_styles()
 
 st.header("Events")
 

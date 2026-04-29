@@ -5,7 +5,10 @@ from src.app.db import get_session
 from src.app.services.fights import count_fights, finish_rate, get_all_fights, get_fight_weight_classes, get_result_methods
 from src.app.ui.filters import apply_filter, method_filter, weight_class_filter
 from src.app.ui.metrics import display_metrics
+from src.app.ui.styles import inject_styles
 from src.app.ui.tables import display_table
+
+inject_styles()
 
 st.header("Fights")
 
