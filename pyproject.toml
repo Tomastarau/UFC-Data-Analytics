@@ -12,6 +12,7 @@ dependencies = [
     "sqlalchemy>=2.0.48",
     "typer>=0.15.0",
     "streamlit>=1.45.0",
+    "plotly>=5.0.0",
 ]
 
 [project.scripts]

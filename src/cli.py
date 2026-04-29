@@ -5,6 +5,7 @@ import typer
 from src.db import get_session_factory
 from src.ingestion.client import UFCStatsClient
 from src.ingestion.config import DEFAULT_DELAY
+from src.ingestion.fighter_photos import enrich_fighter_photos
 from src.ingestion.orchestrator import run_ingestion
 from src.logging_config import setup_logging
 
@@ -65,6 +66,33 @@ def check_quality() -> None:
             typer.echo(f"         {issue}")
 
     typer.echo(f"\nTotal: {total_issues} issues")
+
+
+@app.command("enrich-fighter-photos")
+def enrich_fighter_photos_command(
+    delay: float = typer.Option(DEFAULT_DELAY, help="Seconds between HTTP requests"),
+    limit: int | None = typer.Option(None, help="Limit the number of fighters to process"),
+    only_missing: bool = typer.Option(True, help="Only process fighters without a photo"),
+) -> None:
+    setup_logging()
+
+    session = get_session_factory()()
+    client = UFCStatsClient(delay=delay)
+
+    try:
+        result = enrich_fighter_photos(session, client, only_missing=only_missing, limit=limit)
+        session.commit()
+    finally:
+        client.close()
+        session.close()
+
+    typer.echo("\nFighter photo enrichment complete")
+    typer.echo(f"  Total:         {result.total}")
+    typer.echo(f"  Matched:       {result.matched}")
+    typer.echo(f"  Missing image: {result.missing_image}")
+    typer.echo(f"  Ambiguous:     {result.ambiguous}")
+    typer.echo(f"  Not found:     {result.not_found}")
+    typer.echo(f"  Missing name:  {result.missing_name}")
 
 
 if __name__ == "__main__":

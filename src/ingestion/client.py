@@ -17,7 +17,7 @@ class UFCStatsClient:
             follow_redirects=True,
         )
 
-    def get(self, url: str) -> str:
+    def _request(self, url: str) -> httpx.Response:
         time.sleep(self._delay)
         last_error: Exception | None = None
 
@@ -25,7 +25,7 @@ class UFCStatsClient:
             try:
                 response = self._client.get(url)
                 response.raise_for_status()
-                return response.text
+                return response
             except (httpx.HTTPStatusError, httpx.TransportError) as exc:
                 last_error = exc
                 if isinstance(exc, httpx.HTTPStatusError) and exc.response.status_code < 500:
@@ -35,6 +35,12 @@ class UFCStatsClient:
                 time.sleep(wait)
 
         raise RuntimeError(f"Failed after {MAX_RETRIES} retries for {url}") from last_error
+
+    def get(self, url: str) -> str:
+        return self._request(url).text
+
+    def get_bytes(self, url: str) -> bytes:
+        return self._request(url).content
 
     def close(self) -> None:
         self._client.close()
